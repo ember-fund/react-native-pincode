@@ -15,43 +15,51 @@ class PinCodeEnter extends React.PureComponent {
         this.endProcess = async (pinCode) => {
             if (!!this.props.endProcessFunction) {
                 this.props.endProcessFunction(pinCode);
-            }
-            else {
+            } else {
                 if (this.props.handleResult) {
-                    this.props.handleResult(pinCode);
-                }
-                this.setState({ pinCodeStatus: utils_1.PinResultStatus.initial });
-                this.props.changeInternalStatus(utils_1.PinResultStatus.initial);
-                const pinAttemptsStr = await async_storage_1.default.getItem(this.props.pinAttemptsAsyncStorageName);
-                let pinAttempts = pinAttemptsStr ? +pinAttemptsStr : 0;
-                const pin = this.props.storedPin || this.keyChainResult;
-                if (pin === pinCode) {
-                    this.setState({ pinCodeStatus: utils_1.PinResultStatus.success });
-                    async_storage_1.default.multiRemove([
-                        this.props.pinAttemptsAsyncStorageName,
-                        this.props.timePinLockedAsyncStorageName
-                    ]);
-                    this.props.changeInternalStatus(utils_1.PinResultStatus.success);
-                    if (!!this.props.finishProcess)
-                        this.props.finishProcess(pinCode);
-                }
-                else {
-                    pinAttempts++;
-                    if (+pinAttempts >= this.props.maxAttempts &&
-                        !this.props.disableLockScreen) {
-                        await async_storage_1.default.setItem(this.props.timePinLockedAsyncStorageName, new Date().toISOString());
-                        this.setState({ locked: true, pinCodeStatus: utils_1.PinResultStatus.locked });
-                        this.props.changeInternalStatus(utils_1.PinResultStatus.locked);
+                    this.setState({ pinCodeStatus: utils_1.PinResultStatus.initial });
+                    this.props.changeInternalStatus(utils_1.PinResultStatus.initial);
+                    const pinStatus = await this.props.handleResult(pinCode);
+                    this.setState({ pinCodeStatus: pinStatus });
+                    this.props.changeInternalStatus(pinStatus);
+                    if (pinStatus === utils_1.PinResultStatus.success) {
+                      if (!!this.props.finishProcess)
+                          this.props.finishProcess(pinCode);
                     }
-                    else {
-                        await async_storage_1.default.setItem(this.props.pinAttemptsAsyncStorageName, pinAttempts.toString());
-                        this.setState({ pinCodeStatus: utils_1.PinResultStatus.failure });
-                        this.props.changeInternalStatus(utils_1.PinResultStatus.failure);
-                    }
-                    if (this.props.onFail) {
-                        await delay_1.default(1500);
-                        this.props.onFail(pinAttempts);
-                    }
+                } else {
+                  this.setState({ pinCodeStatus: utils_1.PinResultStatus.initial });
+                  this.props.changeInternalStatus(utils_1.PinResultStatus.initial);
+                  const pinAttemptsStr = await async_storage_1.default.getItem(this.props.pinAttemptsAsyncStorageName);
+                  let pinAttempts = pinAttemptsStr ? +pinAttemptsStr : 0;
+                  const pin = this.props.storedPin || this.keyChainResult;
+                  if (pin === pinCode) {
+                      this.setState({ pinCodeStatus: utils_1.PinResultStatus.success });
+                      async_storage_1.default.multiRemove([
+                          this.props.pinAttemptsAsyncStorageName,
+                          this.props.timePinLockedAsyncStorageName
+                      ]);
+                      this.props.changeInternalStatus(utils_1.PinResultStatus.success);
+                      if (!!this.props.finishProcess)
+                          this.props.finishProcess(pinCode);
+                  }
+                  else {
+                      pinAttempts++;
+                      if (+pinAttempts >= this.props.maxAttempts &&
+                          !this.props.disableLockScreen) {
+                          await async_storage_1.default.setItem(this.props.timePinLockedAsyncStorageName, new Date().toISOString());
+                          this.setState({ locked: true, pinCodeStatus: utils_1.PinResultStatus.locked });
+                          this.props.changeInternalStatus(utils_1.PinResultStatus.locked);
+                      }
+                      else {
+                          await async_storage_1.default.setItem(this.props.pinAttemptsAsyncStorageName, pinAttempts.toString());
+                          this.setState({ pinCodeStatus: utils_1.PinResultStatus.failure });
+                          this.props.changeInternalStatus(utils_1.PinResultStatus.failure);
+                      }
+                      if (this.props.onFail) {
+                          await delay_1.default(1500);
+                          this.props.onFail(pinAttempts);
+                      }
+                  }
                 }
             }
         };
