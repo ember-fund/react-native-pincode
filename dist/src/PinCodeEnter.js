@@ -20,12 +20,24 @@ class PinCodeEnter extends React.PureComponent {
                     this.setState({ pinCodeStatus: utils_1.PinResultStatus.initial });
                     this.props.changeInternalStatus(utils_1.PinResultStatus.initial);
                     const pinStatus = await this.props.handleResult(pinCode);
-                    this.setState({ pinCodeStatus: pinStatus });
-                    this.props.changeInternalStatus(pinStatus);
                     if (pinStatus === utils_1.PinResultStatus.success) {
+                      this.setState({ pinCodeStatus: utils_1.PinResultStatus.success });
+                      async_storage_1.default.multiRemove([
+                          this.props.pinAttemptsAsyncStorageName,
+                          this.props.timePinLockedAsyncStorageName
+                      ]);
+                      this.props.changeInternalStatus(utils_1.PinResultStatus.success);
                       if (!!this.props.finishProcess)
                           this.props.finishProcess(pinCode);
+                    } else if (utils_1.PinResultStatus.locked) {
+                      await async_storage_1.default.setItem(this.props.timePinLockedAsyncStorageName, new Date().toISOString());
+                      this.setState({ locked: true, pinCodeStatus: utils_1.PinResultStatus.locked });
+                      this.props.changeInternalStatus(utils_1.PinResultStatus.locked);
+                    } else {
+                      this.setState({ pinCodeStatus: utils_1.PinResultStatus.failure });
+                      this.props.changeInternalStatus(utils_1.PinResultStatus.failure);
                     }
+
                 } else {
                   this.setState({ pinCodeStatus: utils_1.PinResultStatus.initial });
                   this.props.changeInternalStatus(utils_1.PinResultStatus.initial);
