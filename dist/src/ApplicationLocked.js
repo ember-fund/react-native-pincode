@@ -98,7 +98,7 @@ class ApplicationLocked extends React.PureComponent {
         //     this.timeLocked = new Date(val ? val : "").getTime() + this.props.timeToLock;
         //     this.timer();
         // });
-        this.timer();
+        // this.timer();
     }
     async timer() {
         const val = await async_storage_1.default.getItem(this.props.timePinLockedAsyncStorageName);
@@ -113,14 +113,15 @@ class ApplicationLocked extends React.PureComponent {
                 this.props.pinAttemptsAsyncStorageName
             ]);
         }
-        if (!this.isUnmounted) {
-            this.timer();
-        }
+        // if (!this.isUnmounted) {
+        //     this.timer();
+        // }
     }
     componentWillUnmount() {
         this.isUnmounted = true;
     }
     render() {
+        this.timer();
         return (React.createElement(react_native_1.View, { style: this.props.styleMainContainer
                 ? this.props.styleMainContainer
                 : styles.container }, this.renderErrorLocked()));
