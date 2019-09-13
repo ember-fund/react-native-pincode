@@ -22,10 +22,14 @@ class PinCodeEnter extends React.PureComponent {
                     const pinStatus = await this.props.handleResult(pinCode);
                     if (pinStatus === utils_1.PinResultStatus.success) {
                       this.setState({ pinCodeStatus: utils_1.PinResultStatus.success });
-                      async_storage_1.default.multiRemove([
-                          this.props.pinAttemptsAsyncStorageName,
-                          this.props.timePinLockedAsyncStorageName
-                      ]);
+                      // Make sure to only delete the date where we locked the pin at when we login with pin
+                      // and not when we login with touch id as that should not unlock the pin login
+                      if (pinCode) {
+                        async_storage_1.default.multiRemove([
+                            this.props.pinAttemptsAsyncStorageName,
+                            this.props.timePinLockedAsyncStorageName
+                        ]);
+                      }
                       this.props.changeInternalStatus(utils_1.PinResultStatus.success);
                       if (!!this.props.finishProcess)
                           this.props.finishProcess(pinCode);
