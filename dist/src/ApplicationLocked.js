@@ -102,8 +102,8 @@ class ApplicationLocked extends React.PureComponent {
     }
     async timer() {
         // const test = await async_storage_1.default.getItem(this.props.timePinLockedAsyncStorageName);
-        const val = this.props.lockedDate;
-        this.timeLocked = new Date(val ? val : "").getTime() + this.props.timeToLock;
+        // const val = this.props.lockedDate;
+        this.timeLocked = new Date(this.props.lockedDate ? this.props.lockedDate : "").getTime() + this.props.timeToLock;
         const timeDiff = +new Date(this.timeLocked) - +new Date();
         this.setState({ timeDiff: Math.max(0, timeDiff) });
         await delay_1.default(1000);
