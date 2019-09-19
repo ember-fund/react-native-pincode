@@ -94,16 +94,10 @@ class ApplicationLocked extends React.PureComponent {
         this.renderTitle = this.renderTitle.bind(this);
     }
     componentDidMount() {
-        // async_storage_1.default.getItem(this.props.timePinLockedAsyncStorageName).then(val => {
-        //     this.timeLocked = new Date(val ? val : "").getTime() + this.props.timeToLock;
-        //     this.timer();
-        // });
         this.timer();
     }
     async timer() {
-        // const test = await async_storage_1.default.getItem(this.props.timePinLockedAsyncStorageName);
-        // const val = this.props.lockedDate;
-        this.timeLocked = new Date(this.props.lockedDate ? this.props.lockedDate : "").getTime() + this.props.timeToLock;
+        this.timeLocked = new Date(this.props.lockedAtDate ? this.props.lockedAtDate : "").getTime() + this.props.timeToLock;
         const timeDiff = +new Date(this.timeLocked) - +new Date();
         this.setState({ timeDiff: Math.max(0, timeDiff) });
         await delay_1.default(1000);
